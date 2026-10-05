@@ -26,7 +26,12 @@ nginx-reverse-proxy-assignment/
 └── report/                # Optional report
     └── report.md
 ```
+## Architecture
+Client -> NGINX :8080
+             |-- /     -> frontend 127.0.0.1:3000
+             |-- /api  -> backend  127.0.0.1:5000 -> MySQL 127.0.0.1:3306
 
+            
 ## Backend Servers
 
 ### Backend 1 (port 5001)
