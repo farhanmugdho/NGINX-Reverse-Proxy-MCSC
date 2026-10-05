@@ -27,10 +27,11 @@ nginx-reverse-proxy-assignment/
     └── report.md
 ```
 ## Architecture
+```
 Client -> NGINX :8080
              |-- /     -> frontend 127.0.0.1:3000
              |-- /api  -> backend  127.0.0.1:5000 -> MySQL 127.0.0.1:3306
-
+```
             
 ## Backend Servers
 
@@ -51,6 +52,12 @@ The NGINX configuration (`nginx/reverse-proxy.conf`) forwards:
 - http://YOUR-IP/api → localhost:5002 (Backend 2)
 
 ## Setup & Running
+
+### 1. Install packages on Ubuntu/Debian
+```
+sudo apt update
+sudo apt install -y nginx python3
+```
 
 ### 1. Run setup-nginx.sh
 ```bash
@@ -75,6 +82,103 @@ cd nginx-reverse-proxy-assignment
 
 - `/api/users` - Reads from MySQL if setup-mysql.sh is run (otherwise returns sample data)
 - `/api/check-backend/<1|2>` - AJAX endpoint to check backend status
+
+## Frontend test
+
+The frontend runs on:
+```
+http://127.0.0.1:3000/
+```
+Test it directly:
+```
+curl http://127.0.0.1:3000/
+```
+
+## Backend test
+
+The backend runs on:
+
+```
+127.0.0.1:5000
+```
+
+The backend handles API requests.
+
+Example response:
+
+```
+{
+    "status": "success",
+    "message": "Response from backend server"
+}
+```
+
+Testing the backend:
+```
+curl 127.0.0.1:5000/api
+```
+
+## NGINX Configuration
+
+NGINX listens on port:
+
+```
+8080
+```
+
+Example configuration:
+```
+server {
+    listen 8080;
+
+    server_name _;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:5000/api/;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3000/;
+
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+```
+Save the configuration as:
+```
+/etc/nginx/sites-available/reverse-proxy
+```
+
+Enable it:
+```
+sudo ln -s /etc/nginx/sites-available/reverse-proxy \
+/etc/nginx/sites-enabled/reverse-proxy
+```
+
+If necessary, disable the default NGINX site:
+```
+sudo rm /etc/nginx/sites-enabled/default
+```
+Test the config:
+```
+sudo nginx -t
+```
+Restart NGINX:
+```
+sudo systemctl restart nginx
+
+```
+
+
+
+
+
+
 
 ## Screenshots
 
