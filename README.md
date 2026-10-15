@@ -601,7 +601,7 @@ Both requests should be served through NGINX rather than accessing the Flask por
 
 ---
 
-## 14. Verify Listening Ports
+## 13. Verify Listening Ports
 
 Run:
 
@@ -649,7 +649,7 @@ These logs, together with the active proxy configuration and successful HTTP res
 
 ---
 
-## 15. Complete HTTP Request Flow
+## 14. Complete HTTP Request Flow
 
 ### Request to Backend 1
 
@@ -691,7 +691,7 @@ This demonstrates path-based routing through a single reverse proxy.
 
 ---
 
-## 16. Linux IP Address and Networking
+## 15. Linux IP Address and Networking
 
 Linux provides commands to inspect IP addresses, interfaces, and routing information.
 
@@ -786,7 +786,7 @@ In bridged mode:
 
 ---
 
-## 17. Troubleshooting
+## 16. Troubleshooting
 
 ### Error 1 — ModuleNotFoundError: pymysql
 
@@ -883,7 +883,7 @@ sudo systemctl restart nginx
 
 ---
 
-## 18. Screenshots and Evidence
+## 17. Screenshots and Evidence
 
 Capture screenshots after successfully testing the implementation.
 
@@ -940,7 +940,7 @@ Only include screenshots showing the actual executed setup and observed results.
 
 ---
 
-## 19. Assignment Requirements Checklist
+## 18. Assignment Requirements Checklist
 
 - [ ] Linux environment confirmed
 - [ ] NGINX installed and running
@@ -957,7 +957,7 @@ Only include screenshots showing the actual executed setup and observed results.
 
 ---
 
-## 20. Conclusion
+## 19. Conclusion
 
 This project illustrates how NGINX can act as a reverse proxy between a client and multiple backend applications.
 
