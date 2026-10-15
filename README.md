@@ -216,19 +216,25 @@ The trailing slash in each `proxy_pass` directive replaces the matched location 
 
 All commands must be executed inside the Linux environment.
 
-### Step 1 — Update Linux Packages
+### Step 1 
+
+```
+wsl -d Ubuntu
+```
+
+### Step 2 — Update Linux Packages
 
 ```bash
 sudo apt update
 ```
 
-### Step 2 — Install NGINX and Python
+### Step 3 — Install NGINX and Python
 
 ```bash
 sudo apt install -y nginx python3 python3-pip python3-venv
 ```
 
-### Step 3 — Check NGINX Status
+### Step 4 — Check NGINX Status
 
 ```bash
 sudo systemctl status nginx
@@ -246,7 +252,7 @@ If NGINX is not running:
 sudo systemctl start nginx
 ```
 
-### Step 4 — Install Flask
+### Step 5 — Install Flask
 
 From the project directory:
 
@@ -256,7 +262,7 @@ source .venv/bin/activate
 pip install flask
 ```
 
-### Step 5 — Start Backend 1
+### Step 6 — Start Backend 1
 
 Open a Linux terminal and run:
 
@@ -271,7 +277,7 @@ Backend 1 will listen on:
 127.0.0.1:5001
 ```
 
-### Step 6 — Start Backend 2
+### Step 7 — Start Backend 2
 
 Open another Linux terminal and run:
 
@@ -286,7 +292,7 @@ Backend 2 will listen on:
 127.0.0.1:5002
 ```
 
-### Step 7 — Configure NGINX
+### Step 8 — Configure NGINX
 
 Copy the reverse proxy configuration:
 
@@ -302,7 +308,7 @@ sudo ln -s /etc/nginx/sites-available/reverse-proxy /etc/nginx/sites-enabled/rev
 
 If the symbolic link already exists, do not create it again.
 
-### Step 8 — Test NGINX Configuration
+### Step 9 — Test NGINX Configuration
 
 ```bash
 sudo nginx -t
@@ -315,7 +321,7 @@ nginx: configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
 
-### Step 9 — Reload NGINX
+### Step 10 — Reload NGINX
 
 ```bash
 sudo systemctl reload nginx
