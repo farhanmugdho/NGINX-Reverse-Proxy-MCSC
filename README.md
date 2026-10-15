@@ -527,6 +527,10 @@ The project configuration is located at:
 nginx/reverse-proxy.conf
 ```
 
+```bash
+sudo nano /etc/nginx/sites-available/reverse-proxy
+```
+
 Use the following configuration for the standalone Linux implementation:
 
 ```nginx
