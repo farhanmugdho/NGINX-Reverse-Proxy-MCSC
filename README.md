@@ -60,8 +60,6 @@ NGINX-Reverse-Proxy-MCSC/
 ├── backend1/
 │   └── server.py
 │
-├── backend2/
-│   └── server.py
 │
 ├── database/
 │
@@ -103,19 +101,17 @@ The repository contains additional Docker and Kubernetes resources, but these ar
                 NGINX REVERSE PROXY
                      Port 8080
                          |
-              +----------+----------+
-              |                     |
-              |                     |
-           /app1                  /api
-              |                     |
-              v                     v
-       FLASK BACKEND 1       FLASK BACKEND 2
-          Port 5001             Port 5002
-              |                     |
-              v                     |
-         MySQL Database             |
-              |                     |
-              +----------+----------+
+                         |                     
+                         |            
+                       /app1         
+                         |                     
+                         v             
+                   FLASK BACKEND 1 
+                      Port 5001
+                         |                     
+                         v          
+                   MySQL Database       
+                         |                
                          |
                     HTTP Response
                          |
@@ -131,12 +127,9 @@ NGINX examines the requested URL path and forwards the request to the correspond
 
 | Request Path | Backend | Backend Port |
 |---|---|---|
-| `/app1` | Flask Backend 1 | 5001 |
-| `/api` | Flask Backend 2 | 5002 |
+| `/app1` | Flask Backend | 5001 |
 
 Backend 1 connects to the MySQL database.
-
-Backend 2 returns a simple HTTP response.
 
 Both applications can be accessed using the same NGINX port.
 
@@ -453,69 +446,8 @@ The visits value depends on the database record.
 
 ---
 
-## 10. Configure Backend 2
 
-Backend 2 uses:
-
-```text
-python3 backend2/server.py
-```
-
-The application defines this Flask route:
-
-```python
-@app.route('/api')
-```
-
-Backend 2 runs on port `5002`.
-
-### Start Backend 2
-
-Open a new Ubuntu terminal.
-
-Navigate to the project:
-
-```bash
-cd ~/NGINX-Reverse-Proxy-MCSC
-```
-
-Activate the virtual environment:
-
-```bash
-source .venv/bin/activate
-```
-
-Run Backend 2:
-
-```bash
-python3 backend2/server.py
-```
-
-Keep this terminal open.
-
-### Test Backend 2 Directly
-
-From another Ubuntu terminal:
-
-```bash
-curl -i http://127.0.0.1:5002/api
-```
-
-Expected successful HTTP status:
-
-```text
-HTTP/1.1 200 OK
-```
-
-Expected response body:
-
-```text
-Hello from Backend 2
-```
-
----
-
-## 11. NGINX Reverse Proxy Configuration
+## 10. NGINX Reverse Proxy Configuration
 
 NGINX receives incoming HTTP requests on port `8080` and routes requests to the Flask applications.
 
@@ -576,7 +508,6 @@ listen 8080;
 | `listen 8080` | NGINX accepts HTTP requests on port 8080 |
 | `server_name localhost` | Defines the configured server name |
 | `location /app1` | Matches Backend 1 requests |
-| `location /api` | Matches Backend 2 requests |
 | `proxy_pass` | Forwards requests to a backend |
 | `X-Real-IP` | Sends the client IP information |
 | `X-Forwarded-For` | Passes the proxy-chain IP information |
@@ -586,7 +517,7 @@ The `proxy_pass` directives do not end with a trailing slash, preserving the ori
 
 ---
 
-## 12. Enable the NGINX Configuration
+## 11. Enable the NGINX Configuration
 
 Ensure the repository configuration file contains the configuration shown above.
 
@@ -633,7 +564,7 @@ A successful syntax test alone does not prove that NGINX is listening or forward
 
 ---
 
-## 13. Test the NGINX Reverse Proxy
+## 12. Test the NGINX Reverse Proxy
 
 Both Flask applications must be running during these tests.
 
@@ -655,23 +586,6 @@ Example response:
 Hello from Backend 1 - Visits: 0
 ```
 
-### Test Backend 2 Through NGINX
-
-```bash
-curl -i http://127.0.0.1:8080/api
-```
-
-Expected successful HTTP status:
-
-```text
-HTTP/1.1 200 OK
-```
-
-Expected response:
-
-```text
-Hello from Backend 2
-```
 
 ### Browser Testing
 
@@ -681,12 +595,6 @@ Open:
 
 ```text
 http://localhost:8080/app1
-```
-
-**Backend 2 through NGINX**
-
-```text
-http://localhost:8080/api
 ```
 
 Both requests should be served through NGINX rather than accessing the Flask ports directly.
@@ -707,7 +615,6 @@ Check that the following services are listening:
 |---|---|
 | NGINX | 8080 |
 | Flask Backend 1 | 5001 |
-| Flask Backend 2 | 5002 |
 | MySQL | 3306, if using its default TCP configuration |
 
 A more focused command is:
@@ -776,29 +683,7 @@ Example response:
 Hello from Backend 1 - Visits: 0
 ```
 
-### Request to Backend 2
 
-**Step 1:** The browser requests:
-
-```text
-http://localhost:8080/api
-```
-
-**Step 2:** NGINX receives the request.
-
-**Step 3:** NGINX forwards it to:
-
-```text
-http://127.0.0.1:5002/api
-```
-
-**Step 4:** Flask Backend 2 processes the request.
-
-**Step 5:** Backend 2 returns:
-
-```text
-Hello from Backend 2
-```
 
 **Step 6:** NGINX forwards the response to the browser.
 
@@ -949,7 +834,6 @@ Correct endpoints:
 
 ```text
 Backend 1: /app1
-Backend 2: /api
 ```
 
 ### Error 5 — 500 Internal Server Error
@@ -1079,7 +963,7 @@ This project illustrates how NGINX can act as a reverse proxy between a client a
 
 The intended implementation uses two Flask services running on separate ports, with NGINX receiving HTTP requests on port `8080` and routing them based on URL paths.
 
-Backend 1 integrates with MySQL, while Backend 2 provides a simple HTTP response.
+Backend 1 integrates with MySQL
 
 The reverse proxy implementation is verified when both requests return successful responses through NGINX and the active configuration and logs confirm the routing behavior.
 
