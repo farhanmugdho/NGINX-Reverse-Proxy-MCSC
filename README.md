@@ -269,6 +269,11 @@ source .venv/bin/activate
 pip install flask
 ```
 
+```bash
+cd ~/NGINX-Reverse-Proxy-MCSC
+ls
+```
+
 ### Step 6 — Start Backend 1
 
 Open a Linux terminal and run:
