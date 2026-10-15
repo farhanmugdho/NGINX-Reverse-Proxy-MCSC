@@ -276,6 +276,11 @@ ls
 
 ### Step 6 — Start Backend 1
 
+Check if pymysql is installed or not, if not installed then
+```bash
+python3 -m pip install pymysql
+```
+
 Open a Linux terminal and run:
 
 ```bash
