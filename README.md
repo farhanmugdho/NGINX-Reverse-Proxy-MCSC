@@ -1,39 +1,61 @@
+
 # NGINX Reverse Proxy Implementation on Linux
 
-## Project Overview
+## 1. Project Overview
 
-This project demonstrates how NGINX works as a reverse proxy on a Linux system, forwarding incoming HTTP requests to different backend application services running on separate ports.
+This project demonstrates how to implement an **NGINX Reverse Proxy** on a Linux operating system using two Python Flask backend services.
 
-The project uses:
-- Linux (Ubuntu/Debian)
-- NGINX
-- Python
-- Flask
-- Git and GitHub
+NGINX acts as the main entry point for incoming HTTP requests. Based on the requested URL path, NGINX forwards each request to the appropriate backend application.
 
-The main objective is to understand how client requests travel through a web server, how different application components communicate, and how IP addressing works in a Linux networking environment.
+The implementation covers:
+- Linux environment setup
+- NGINX installation and configuration
+- Two Flask backend applications
+- MySQL database integration
+- Reverse proxy routing
+- HTTP request and response flow
+- Linux IP addressing and networking
+- Testing and verification
+
+### Technologies Used
+
+| Technology | Purpose |
+|---|---|
+| Ubuntu Linux | Operating system |
+| NGINX | Reverse proxy server |
+| Python 3 | Backend programming |
+| Flask | Web application framework |
+| MySQL | Database for Backend 1 |
+| PyMySQL | Python-MySQL connectivity |
+| Git | Source code management |
+| curl | HTTP request testing |
+
+This implementation uses NGINX directly on Linux without requiring Docker, Kubernetes, AWS, or an additional reverse proxy.
 
 ---
 
-## Project Objectives
+## 2. Project Objectives
 
-- Install and run NGINX on Linux.
-- Create two independent Flask backend services.
-- Run the backend services on different ports.
-- Configure NGINX as a reverse proxy.
-- Route HTTP requests to the appropriate backend.
-- Identify the Linux machine's IP address.
-- Explain private/public IP addressing and VMware networking.
-- Test and verify the complete request flow.
+The main objectives are:
+
+1. Install and run NGINX on Linux.
+2. Run two independent backend applications.
+3. Configure different ports for each backend.
+4. Configure NGINX as a reverse proxy.
+5. Forward incoming requests based on URL paths.
+6. Verify communication between NGINX and Flask.
+7. Identify the Linux IP address and network interface.
+8. Explain private IP addressing and virtual networking.
+9. Test the complete HTTP request-response cycle.
 
 ---
 
-## Project Structure
+## 3. Project Structure
+
+The relevant project files are:
 
 ```text
-nginx-reverse-proxy/
-│
-├── README.md
+NGINX-Reverse-Proxy-MCSC/
 │
 ├── backend1/
 │   └── server.py
@@ -41,129 +63,451 @@ nginx-reverse-proxy/
 ├── backend2/
 │   └── server.py
 │
+├── database/
+│
 ├── nginx/
 │   └── reverse-proxy.conf
 │
-├── screenshots/
+├── frontend/
+│
+├── docker/
+│
+├── kubernetes/
+│
+├── docker-compose.yaml
 │
 ├── setup-nginx.sh
 │
-└── start.sh
+├── start.sh
+│
+├── README.md
+│
+├── architecture-diagram.txt
+│
+└── DESIGN-EXPLANATION.txt
 ```
 
-> Note: The repository structure should match the files actually uploaded to GitHub.
+The repository contains additional Docker and Kubernetes resources, but these are not required for the standalone Linux NGINX implementation described here.
 
 ---
 
-## System Architecture
+## 4. System Architecture
 
 ```text
-                    Client / Browser
-                           |
-                           | HTTP Request
-                           v
-                  NGINX Reverse Proxy
-                       Port 8080
-                           |
-                +----------+----------+
-                |                     |
-                |                     |
-             /app1/                 /app2/
-                |                     |
-                v                     v
-          Flask Backend 1       Flask Backend 2
-          127.0.0.1:5001        127.0.0.1:5002
-                |                     |
-                +----------+----------+
-                           |
-                      HTTP Response
-                           |
-                           v
-                    Client / Browser
+                  CLIENT / BROWSER
+                         |
+                         |
+                  HTTP Request
+                         |
+                         v
+                NGINX REVERSE PROXY
+                     Port 8080
+                         |
+              +----------+----------+
+              |                     |
+              |                     |
+           /app1                  /api
+              |                     |
+              v                     v
+       FLASK BACKEND 1       FLASK BACKEND 2
+          Port 5001             Port 5002
+              |                     |
+              v                     |
+         MySQL Database             |
+              |                     |
+              +----------+----------+
+                         |
+                    HTTP Response
+                         |
+                         v
+                  CLIENT / BROWSER
 ```
 
 ### Architecture Explanation
 
-NGINX acts as the main entry point for client requests.
+The browser sends HTTP requests to NGINX on port `8080`.
 
-When a client sends an HTTP request, NGINX checks the requested URL path and forwards the request to the appropriate backend application.
+NGINX examines the requested URL path and forwards the request to the corresponding backend.
 
-- `/app1/` routes to Backend 1 on port `5001`.
-- `/app2/` routes to Backend 2 on port `5002`.
+| Request Path | Backend | Backend Port |
+|---|---|---|
+| `/app1` | Flask Backend 1 | 5001 |
+| `/api` | Flask Backend 2 | 5002 |
 
-Each backend processes its request independently and sends the response back through NGINX.
+Backend 1 connects to the MySQL database.
+
+Backend 2 returns a simple HTTP response.
+
+Both applications can be accessed using the same NGINX port.
 
 ---
 
-## Backend Servers
+## 5. Linux Environment Setup
 
-Two Python Flask applications are used to demonstrate request routing.
+The demonstrated environment uses Ubuntu on Windows Subsystem for Linux (WSL).
 
-### Backend 1 — Port 5001
+### Step 1 — Open Ubuntu
 
-**File:** `backend1/server.py`
+From Windows PowerShell:
+
+```powershell
+wsl -d Ubuntu
+```
+
+The following Linux commands are executed inside the Ubuntu terminal.
+
+### Step 2 — Update Packages
+
+```bash
+sudo apt update
+sudo apt upgrade -y
+```
+
+### Step 3 — Install Required Packages
+
+```bash
+sudo apt install -y nginx python3 python3-pip python3-venv git curl mysql-server
+```
+
+### Step 4 — Start NGINX
+
+```bash
+sudo systemctl start nginx
+```
+
+Check its status:
+
+```bash
+sudo systemctl status nginx
+```
+
+Expected status:
+
+```text
+Active: active (running)
+```
+
+Press `q` to exit the status screen.
+
+### Step 5 — Start MySQL
+
+```bash
+sudo systemctl start mysql
+```
+
+Verify:
+
+```bash
+sudo systemctl status mysql
+```
+
+Expected status:
+
+```text
+Active: active (running)
+```
+
+---
+
+## 6. Clone the GitHub Repository
+
+Navigate to the home directory:
+
+```bash
+cd ~
+```
+
+Clone the repository:
+
+```bash
+git clone https://github.com/farhanmugdho/NGINX-Reverse-Proxy-MCSC.git
+```
+
+If the repository has already been cloned, skip the clone command.
+
+Enter the project directory:
+
+```bash
+cd ~/NGINX-Reverse-Proxy-MCSC
+```
+
+Check the files:
+
+```bash
+ls
+```
+
+---
+
+## 7. Python Virtual Environment
+
+Create a virtual environment inside the project directory:
+
+```bash
+python3 -m venv .venv
+```
+
+Activate it:
+
+```bash
+source .venv/bin/activate
+```
+
+Install Flask and PyMySQL:
+
+```bash
+python3 -m pip install flask pymysql
+```
+
+Verify PyMySQL installation:
+
+```bash
+python3 -m pip show pymysql
+```
+
+The terminal prompt should indicate the active environment:
+
+```text
+(.venv) ubuntu@hostname:~/NGINX-Reverse-Proxy-MCSC$
+```
+
+---
+
+## 8. MySQL Database Configuration
+
+Backend 1 requires a MySQL database.
+
+Open MySQL with administrative privileges:
+
+```bash
+sudo mysql
+```
+
+Create the database:
+
+```sql
+CREATE DATABASE IF NOT EXISTS samples;
+```
+
+Create the local database user:
+
+```sql
+CREATE USER IF NOT EXISTS 'user'@'localhost'
+IDENTIFIED BY 'password';
+```
+
+Configure its password:
+
+```sql
+ALTER USER 'user'@'localhost'
+IDENTIFIED BY 'password';
+```
+
+Grant database permissions:
+
+```sql
+GRANT ALL PRIVILEGES ON samples.* TO 'user'@'localhost';
+```
+
+Select the database:
+
+```sql
+USE samples;
+```
+
+Create the visits table:
+
+```sql
+CREATE TABLE IF NOT EXISTS visits (
+    id INT PRIMARY KEY,
+    counter INT NOT NULL DEFAULT 0
+);
+```
+
+Insert the initial record:
+
+```sql
+INSERT INTO visits (id, counter)
+VALUES (1, 0)
+ON DUPLICATE KEY UPDATE id = id;
+```
+
+Exit MySQL:
+
+```sql
+EXIT;
+```
+
+### Verify MySQL Connection
+
+Run:
+
+```bash
+mysql -h 127.0.0.1 -u user -p samples
+```
+
+Enter the configured password when prompted.
+
+A successful connection displays the MySQL prompt:
+
+```text
+mysql>
+```
+
+Exit using:
+
+```sql
+EXIT;
+```
+
+**Security Note:** The sample credentials are intended only for a local coursework demonstration. Production applications should use stronger credentials and environment-based configuration.
+
+---
+
+## 9. Configure Backend 1
+
+Backend 1 uses:
+
+```text
+backend1/server.py
+```
+
+It is configured to run on port `5001`.
+
+Its application defines a Flask route:
 
 ```python
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route("/")
-def home():
-    return "Hello from Backend 1"
-
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5001)
+@app.route('/app1')
 ```
 
-**Direct Access:**
+Backend 1 connects to MySQL and reads the visits counter.
 
-```text
-http://127.0.0.1:5001/
-```
+### Database Host Configuration
 
-**Through NGINX:**
-
-```text
-http://127.0.0.1:8080/app1/
-```
-
-**Expected Response:**
-
-```text
-Hello from Backend 1
-```
-
-### Backend 2 — Port 5002
-
-**File:** `backend2/server.py`
+The original source uses the hostname:
 
 ```python
-from flask import Flask
-
-app = Flask(__name__)
-
-@app.route("/")
-def home():
-    return "Hello from Backend 2"
-
-if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5002)
+DB_HOST = 'db'
 ```
 
-**Direct Access:**
+This hostname is intended for Docker networking.
+
+For standalone Linux execution, use:
+
+```python
+DB_HOST = '127.0.0.1'
+```
+
+The following command updates the original database hostname:
+
+```bash
+sed -i "s/DB_HOST = 'db'/DB_HOST = '127.0.0.1'/" backend1/server.py
+```
+
+Verify the value:
+
+```bash
+grep -n DB_HOST backend1/server.py
+```
+
+Expected value:
+
+```python
+DB_HOST = '127.0.0.1'
+```
+
+### Start Backend 1
+
+From the project directory:
+
+```bash
+source .venv/bin/activate
+python3 backend1/server.py
+```
+
+The Flask server should report that it is listening on port `5001`.
+
+Keep this terminal open.
+
+### Test Backend 1 Directly
+
+Open another terminal and run:
+
+```bash
+curl -i http://127.0.0.1:5001/app1
+```
+
+Expected successful HTTP status:
 
 ```text
-http://127.0.0.1:5002/
+HTTP/1.1 200 OK
 ```
 
-**Through NGINX:**
+Example response body:
 
 ```text
-http://127.0.0.1:8080/app2/
+Hello from Backend 1 - Visits: 0
 ```
 
-**Expected Response:**
+The visits value depends on the database record.
+
+---
+
+## 10. Configure Backend 2
+
+Backend 2 uses:
+
+```text
+backend2/server.py
+```
+
+The application defines this Flask route:
+
+```python
+@app.route('/api')
+```
+
+Backend 2 runs on port `5002`.
+
+### Start Backend 2
+
+Open a new Ubuntu terminal.
+
+Navigate to the project:
+
+```bash
+cd ~/NGINX-Reverse-Proxy-MCSC
+```
+
+Activate the virtual environment:
+
+```bash
+source .venv/bin/activate
+```
+
+Run Backend 2:
+
+```bash
+python3 backend2/server.py
+```
+
+Keep this terminal open.
+
+### Test Backend 2 Directly
+
+From another Ubuntu terminal:
+
+```bash
+curl -i http://127.0.0.1:5002/api
+```
+
+Expected successful HTTP status:
+
+```text
+HTTP/1.1 200 OK
+```
+
+Expected response body:
 
 ```text
 Hello from Backend 2
@@ -171,156 +515,67 @@ Hello from Backend 2
 
 ---
 
-## NGINX Reverse Proxy Configuration
+## 11. NGINX Reverse Proxy Configuration
 
-**File:** `nginx/reverse-proxy.conf`
+NGINX receives incoming HTTP requests on port `8080` and routes requests to the Flask applications.
+
+### Configuration File
+
+The project configuration is located at:
+
+```text
+nginx/reverse-proxy.conf
+```
+
+Use the following configuration for the standalone Linux implementation:
 
 ```nginx
 server {
     listen 8080;
-    server_name _;
+    server_name localhost;
 
-    location /app1/ {
-        proxy_pass http://127.0.0.1:5001/;
+    location /app1 {
+        proxy_pass http://127.0.0.1:5001;
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    location /app2/ {
-        proxy_pass http://127.0.0.1:5002/;
+    location /api {
+        proxy_pass http://127.0.0.1:5002;
 
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
     }
 }
 ```
 
-### Configuration Explanation
+### Explanation
 
-- `listen 8080;` — NGINX listens for incoming HTTP requests on port 8080.
-- `server_name _;` — Provides a placeholder server name for this server block.
-- `location /app1/` — Matches requests beginning with `/app1/`.
-- `proxy_pass http://127.0.0.1:5001/;` — Forwards matching requests to Backend 1.
-- `location /app2/` — Matches requests beginning with `/app2/`.
-- `proxy_pass http://127.0.0.1:5002/;` — Forwards matching requests to Backend 2.
-- `proxy_set_header` — Passes relevant request information to the backend server.
+| Directive | Purpose |
+|---|---|
+| `listen 8080` | NGINX accepts HTTP requests on port 8080 |
+| `server_name localhost` | Defines the configured server name |
+| `location /app1` | Matches Backend 1 requests |
+| `location /api` | Matches Backend 2 requests |
+| `proxy_pass` | Forwards requests to a backend |
+| `X-Real-IP` | Sends the client IP information |
+| `X-Forwarded-For` | Passes the proxy-chain IP information |
+| `X-Forwarded-Proto` | Identifies the original request protocol |
 
-The trailing slash in each `proxy_pass` directive replaces the matched location prefix with `/` when forwarding requests.
+The `proxy_pass` directives do not end with a trailing slash, preserving the original request URI for the Flask routes.
 
 ---
 
-## Installation and Setup
+## 12. Enable the NGINX Configuration
 
-All commands must be executed inside the Linux environment.
+Ensure the repository configuration file contains the configuration shown above.
 
-### Step 1 
-
-```
-wsl -d Ubuntu
-```
-
-### Step 2 — Update Linux Packages
-
-```bash
-sudo apt update
-```
-
-### Step 3 — Install NGINX and Python
-
-```bash
-sudo apt install -y nginx python3 python3-pip python3-venv
-```
-
-### Step 4 — Check NGINX Status
-
-```bash
-sudo systemctl status nginx
-```
-
-NGINX should report:
-
-```text
-active (running)
-```
-
-If NGINX is not running:
-
-```bash
-sudo systemctl start nginx
-```
-
-If NGINX is running
-then
-```bash
-cd ~
-git clone https://github.com/farhanmugdho/NGINX-Reverse-Proxy-MCSC.git
-```
-
-### Step 5 — Install Flask
-
-From the project directory:
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install flask
-```
-
-```bash
-cd ~/NGINX-Reverse-Proxy-MCSC
-ls
-```
-
-### Step 6 — Start Backend 1
-
-Check if pymysql is installed or not, if not installed then
-```bash
-python3 -m pip install pymysql
-```
-
-Open a Linux terminal and run:
-
-```bash
-source .venv/bin/activate
-python3 backend1/server.py
-```
-
-If it fails to run then
-```bash
-sed -i "s/DB_HOST = 'db'/DB_HOST = '127.0.0.1'/" backend1/server.py
-```
-and then:
-```bash
-grep -n DB_HOST backend1/server.py
-```
-
-Backend 1 will listen on:
-
-```text
-127.0.0.1:5001
-```
-
-### Step 7 — Start Backend 2
-
-Open another Linux terminal and run:
-
-```bash
-source .venv/bin/activate
-python3 backend2/server.py
-```
-
-Backend 2 will listen on:
-
-```text
-127.0.0.1:5002
-```
-
-### Step 8 — Configure NGINX
-
-Copy the reverse proxy configuration:
+Copy it to the NGINX configuration directory:
 
 ```bash
 sudo cp nginx/reverse-proxy.conf /etc/nginx/sites-available/reverse-proxy
@@ -329,117 +584,216 @@ sudo cp nginx/reverse-proxy.conf /etc/nginx/sites-available/reverse-proxy
 Enable the configuration:
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/reverse-proxy /etc/nginx/sites-enabled/reverse-proxy
+sudo ln -sfn /etc/nginx/sites-available/reverse-proxy /etc/nginx/sites-enabled/reverse-proxy
 ```
 
-If the symbolic link already exists, do not create it again.
-
-### Step 9 — Test NGINX Configuration
+### Test the Configuration
 
 ```bash
 sudo nginx -t
 ```
 
-Expected successful result:
+Expected output:
 
 ```text
-nginx: configuration file /etc/nginx/nginx.conf syntax is ok
+nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 ```
 
-### Step 10 — Reload NGINX
+### Restart NGINX
 
 ```bash
-sudo systemctl reload nginx
+sudo systemctl restart nginx
 ```
+
+### Verify Listening Port
+
+```bash
+sudo ss -ltnp | grep ':8080'
+```
+
+NGINX should be listening on port `8080`.
+
+A successful syntax test alone does not prove that NGINX is listening or forwarding requests.
 
 ---
 
-## API Endpoints
+## 13. Test the NGINX Reverse Proxy
 
-| Endpoint | Backend | Port | Description |
-|----------|---------|------|-------------|
-| `/app1/` | Backend 1 | 5001 | Routes requests to Flask Backend 1 |
-| `/app2/` | Backend 2 | 5002 | Routes requests to Flask Backend 2 |
+Both Flask applications must be running during these tests.
 
-NGINX receives requests on port `8080` and forwards them to the corresponding backend.
-
----
-
-## Testing the Backend Services
-
-### Test Backend 1 Directly
+### Test Backend 1 Through NGINX
 
 ```bash
-curl -i http://127.0.0.1:5001/
+curl -i http://127.0.0.1:8080/app1
 ```
 
-Expected response body:
+Expected successful HTTP status:
 
 ```text
-Hello from Backend 1
+HTTP/1.1 200 OK
 ```
 
-### Test Backend 2 Directly
+Example response:
+
+```text
+Hello from Backend 1 - Visits: 0
+```
+
+### Test Backend 2 Through NGINX
 
 ```bash
-curl -i http://127.0.0.1:5002/
+curl -i http://127.0.0.1:8080/api
 ```
 
-Expected response body:
+Expected successful HTTP status:
+
+```text
+HTTP/1.1 200 OK
+```
+
+Expected response:
 
 ```text
 Hello from Backend 2
 ```
 
-These tests confirm that both Flask applications are running independently.
+### Browser Testing
+
+Open:
+
+**Backend 1 through NGINX**
+
+```text
+http://localhost:8080/app1
+```
+
+**Backend 2 through NGINX**
+
+```text
+http://localhost:8080/api
+```
+
+Both requests should be served through NGINX rather than accessing the Flask ports directly.
 
 ---
 
-## Testing NGINX Reverse Proxy
+## 14. Verify Listening Ports
 
-### Test Route 1
-
-```bash
-curl -i http://127.0.0.1:8080/app1/
-```
-
-Expected response body:
-
-```text
-Hello from Backend 1
-```
-
-### Test Route 2
-
-```bash
-curl -i http://127.0.0.1:8080/app2/
-```
-
-Expected response body:
-
-```text
-Hello from Backend 2
-```
-
-A successful HTTP `200 OK` response containing the correct backend message confirms that NGINX is forwarding the request to the intended application.
-
-### Check Listening Ports
+Run:
 
 ```bash
 sudo ss -ltnp
 ```
 
-Verify that:
-- NGINX is listening on port `8080`.
-- Flask Backend 1 is listening on port `5001`.
-- Flask Backend 2 is listening on port `5002`.
+Check that the following services are listening:
+
+| Service | Port |
+|---|---|
+| NGINX | 8080 |
+| Flask Backend 1 | 5001 |
+| Flask Backend 2 | 5002 |
+| MySQL | 3306, if using its default TCP configuration |
+
+A more focused command is:
+
+```bash
+sudo ss -ltnp | grep -E ':8080|:5001|:5002'
+```
+
+### Check NGINX Access Logs
+
+Run:
+
+```bash
+sudo tail -f /var/log/nginx/access.log
+```
+
+Send a request to:
+
+```text
+http://localhost:8080/app1
+```
+
+The NGINX access log should record the incoming request.
+
+Repeat with:
+
+```text
+http://localhost:8080/api
+```
+
+These logs, together with the active proxy configuration and successful HTTP responses, provide evidence of request forwarding.
 
 ---
 
-## IP Address and Network Configuration
+## 15. Complete HTTP Request Flow
 
-Linux provides commands to inspect the machine's IP address and network interfaces.
+### Request to Backend 1
+
+**Step 1:** The browser sends an HTTP request to:
+
+```text
+http://localhost:8080/app1
+```
+
+**Step 2:** NGINX receives the request on port `8080`.
+
+**Step 3:** NGINX examines the URL path `/app1`.
+
+**Step 4:** The reverse proxy forwards the request to:
+
+```text
+http://127.0.0.1:5001/app1
+```
+
+**Step 5:** Flask Backend 1 processes the request.
+
+**Step 6:** Backend 1 reads the visits counter from MySQL.
+
+**Step 7:** Backend 1 sends an HTTP response back to NGINX.
+
+**Step 8:** NGINX forwards the response to the browser.
+
+Example response:
+
+```text
+Hello from Backend 1 - Visits: 0
+```
+
+### Request to Backend 2
+
+**Step 1:** The browser requests:
+
+```text
+http://localhost:8080/api
+```
+
+**Step 2:** NGINX receives the request.
+
+**Step 3:** NGINX forwards it to:
+
+```text
+http://127.0.0.1:5002/api
+```
+
+**Step 4:** Flask Backend 2 processes the request.
+
+**Step 5:** Backend 2 returns:
+
+```text
+Hello from Backend 2
+```
+
+**Step 6:** NGINX forwards the response to the browser.
+
+This demonstrates path-based routing through a single reverse proxy.
+
+---
+
+## 16. Linux IP Address and Networking
+
+Linux provides commands to inspect IP addresses, interfaces, and routing information.
 
 ### Check IP Address
 
@@ -453,135 +807,204 @@ ip -4 addr
 ip route
 ```
 
+### Check Assigned IPv4 Addresses
+
+```bash
+hostname -I
+```
+
+### Inspect the Default Route
+
+```bash
+ip -4 route get 1.1.1.1
+```
+
 ### Network Information
 
-Fill in the following information using the actual output from the Linux machine:
+Record the actual values from the Linux environment:
 
 | Network Property | Observed Value |
-|------------------|----------------|
-| Linux IP Address | To be verified |
-| Network Interface | To be verified |
-| Subnet/Prefix | To be verified |
-| Default Gateway | To be verified |
-| IP Address Type | To be verified |
-| IP Assignment Method | To be verified |
-| VMware Networking Mode | To be verified, if applicable |
+|---|---|
+| Linux IPv4 Address | Verify using `ip -4 addr` |
+| Network Interface | Verify from interface output |
+| Subnet/Prefix | Verify from interface output |
+| Default Gateway | Verify using `ip route` |
+| IP Address Type | Private or public |
+| IP Assignment | Verify from system network configuration |
+| Virtual Networking Mode | Verify WSL/VM configuration |
 
 ### Private vs. Public IP Address
 
-A private IPv4 address belongs to one of these ranges:
+Private IPv4 ranges include:
 
 ```text
-10.0.0.0       - 10.255.255.255
-172.16.0.0     - 172.31.255.255
-192.168.0.0    - 192.168.255.255
+10.0.0.0/8
+172.16.0.0/12
+192.168.0.0/16
 ```
 
-Private IP addresses are commonly used within local networks and virtual machine networks.
+Private IPv4 addresses are not directly routable on the public internet.
 
-A public IP address is globally routable on the internet.
+Public IPv4 addresses can be globally routable when permitted by network configuration.
 
-The address `127.0.0.1` is a loopback address used for internal communication within the same machine. It is not the machine's LAN IP address.
+The address `127.0.0.1` is a loopback address used for communication within the local system.
 
-### Why the Machine Receives Its IP Address
+### Virtual Networking in WSL
 
-If DHCP is enabled, the DHCP server assigns an available IP address from the configured address pool.
+This implementation was demonstrated using Ubuntu on WSL.
 
-The assigned address depends on:
-- The network subnet.
-- DHCP server configuration.
-- Available addresses.
-- Existing DHCP leases.
-- Address reservations, if configured.
+In the common WSL 2 NAT configuration, Linux uses a virtual network interface connected through the Windows host networking system.
 
-If static addressing is used, the IP address is assigned through the machine's network configuration.
+The WSL instance typically receives a private IPv4 address within a virtual subnet managed by the host networking environment.
+
+Outbound traffic can pass through the host's network connection using NAT.
+
+The exact interface, subnet, IP address, and gateway must be confirmed from the running environment.
+
+WSL may also support other networking configurations, so NAT should not be assumed without verification.
 
 ### VMware NAT Networking
 
-When VMware NAT mode is enabled:
+If the implementation is reproduced inside a VMware Linux virtual machine using NAT:
 
-1. The virtual machine connects to a private virtual network.
-2. VMware normally assigns a private IP address through its virtual DHCP server.
-3. The VM sends outbound traffic through the VMware NAT service.
-4. NAT translates the VM's private network connection using the host-side network connection.
-5. This allows the VM to communicate with external networks without requiring its own directly accessible public IP.
+1. VMware creates a private virtual network.
+2. The VM normally receives a private IP address.
+3. VMware's virtual DHCP service may assign the IP.
+4. Outbound VM traffic passes through the NAT service.
+5. NAT allows the VM to access external networks through the host.
 
 ### VMware Bridged Networking
 
-In Bridged mode:
+In bridged mode:
 
 1. The VM connects to the same network as the host.
-2. The VM acts as a separate device on that network.
-3. It normally receives an IP from the network's DHCP server.
-4. Other devices on that network may be able to communicate directly with the VM, subject to firewall and network restrictions.
+2. The VM appears as a separate network device.
+3. The network's DHCP server may assign the IP address.
+4. The VM can communicate with other devices, subject to firewall and network configuration.
 
-The actual networking mode and assigned IP must be verified in the Linux/VMware environment.
-
----
-
-## Complete HTTP Request Flow
-
-The request flow works as follows:
-
-**Step 1:** The client sends an HTTP request to NGINX.
-
-```text
-http://127.0.0.1:8080/app1/
-```
-
-**Step 2:** NGINX receives the request on port `8080`.
-
-**Step 3:** NGINX examines the URL path `/app1/`.
-
-**Step 4:** Based on its configuration, NGINX forwards the request to:
-
-```text
-http://127.0.0.1:5001/
-```
-
-**Step 5:** Flask Backend 1 processes the request and generates a response.
-
-**Step 6:** The response returns to NGINX.
-
-**Step 7:** NGINX forwards the HTTP response to the client.
-
-**Step 8:** The client receives the result:
-
-```text
-Hello from Backend 1
-```
-
-The same process applies to `/app2/`, except that NGINX forwards the request to Backend 2 on port `5002`.
+**Environment note:** WSL and VMware are different virtualization environments. If VMware is mandatory for the assignment, the implementation must be demonstrated in the required VMware environment.
 
 ---
 
-## Screenshots
+## 17. Troubleshooting
 
-The following screenshots should be captured from the actual Linux environment after successful implementation.
+### Error 1 — ModuleNotFoundError: pymysql
+
+Cause: The Python environment cannot find PyMySQL.
+
+Solution:
+
+```bash
+python3 -m pip install pymysql
+```
+
+### Error 2 — MySQL Hostname Cannot Be Resolved
+
+Example:
+
+```text
+socket.gaierror: [Errno -2] Name or service not known
+```
+
+Cause: The backend uses Docker hostname `db` outside Docker.
+
+Solution:
+
+```bash
+sed -i "s/DB_HOST = 'db'/DB_HOST = '127.0.0.1'/" backend1/server.py
+```
+
+### Error 3 — MySQL Access Denied
+
+Example:
+
+```text
+ERROR 1045 (28000): Access denied
+```
+
+Cause: Invalid database credentials or missing permissions.
+
+Solution: Verify the database user, password, and grants.
+
+### Error 4 — 404 Not Found
+
+Cause: The requested Flask route does not exist.
+
+Correct endpoints:
+
+```text
+Backend 1: /app1
+Backend 2: /api
+```
+
+### Error 5 — 500 Internal Server Error
+
+Cause: An application-side failure, such as a database connection or query error.
+
+Solution: Inspect the traceback in the Flask terminal.
+
+### Error 6 — Connection Refused
+
+Example:
+
+```text
+curl: (7) Failed to connect
+```
+
+Cause: The destination service may not be running or listening on the requested port.
+
+Check:
+
+```bash
+sudo ss -ltnp
+```
+
+Restart the corresponding service if necessary.
+
+### Error 7 — NGINX Not Listening on Port 8080
+
+Check the enabled configuration:
+
+```bash
+ls -l /etc/nginx/sites-enabled/
+```
+
+Verify the active configuration:
+
+```bash
+sudo nginx -T
+```
+
+Test and restart NGINX:
+
+```bash
+sudo nginx -t
+sudo systemctl restart nginx
+```
+
+---
+
+## 18. Screenshots and Evidence
+
+Capture screenshots after successfully testing the implementation.
 
 ### Screenshot 1 — Linux Environment
-
-Show the Linux distribution and terminal.
 
 ```bash
 cat /etc/os-release
 ```
 
-### Screenshot 2 — NGINX Service
-
-Show the NGINX service status.
+### Screenshot 2 — NGINX Status
 
 ```bash
 sudo systemctl status nginx
 ```
 
-### Screenshot 3 — Backend Servers
+### Screenshot 3 — Backend Services
 
-Show both Flask applications running on ports `5001` and `5002`.
+Show both Flask applications listening on their respective ports.
 
 ### Screenshot 4 — NGINX Configuration
-
-Show the active reverse proxy configuration.
 
 ```bash
 sudo cat /etc/nginx/sites-available/reverse-proxy
@@ -589,51 +1012,62 @@ sudo cat /etc/nginx/sites-available/reverse-proxy
 
 ### Screenshot 5 — IP Address
 
-Show the assigned IP address and network interface.
-
 ```bash
 ip -4 addr
 ip route
 ```
 
-### Screenshot 6 — Request Flow Testing
-
-Show successful requests through NGINX.
+### Screenshot 6 — Direct Backend Testing
 
 ```bash
-curl -i http://127.0.0.1:8080/app1/
-curl -i http://127.0.0.1:8080/app2/
+curl -i http://127.0.0.1:5001/app1
+curl -i http://127.0.0.1:5002/api
 ```
 
-Add the corresponding image files to the `screenshots/` folder.
+### Screenshot 7 — Reverse Proxy Testing
+
+```bash
+curl -i http://127.0.0.1:8080/app1
+curl -i http://127.0.0.1:8080/api
+```
+
+### Screenshot 8 — NGINX Request Logs
+
+```bash
+sudo tail -n 20 /var/log/nginx/access.log
+```
+
+Only include screenshots showing the actual executed setup and observed results.
 
 ---
 
-## Assignment Report Sections
+## 19. Assignment Requirements Checklist
 
-If submitting the report option, include:
-
-1. Introduction
-2. Project Objectives
-3. Linux Environment
-4. Backend Application Setup
-5. NGINX Installation
-6. Reverse Proxy Configuration
-7. IP Address and Network Explanation
-8. VMware NAT/Bridged Networking Explanation
-9. Complete HTTP Request Flow
-10. Testing Results
-11. Screenshots
-12. Conclusion
+- [ ] Linux environment confirmed
+- [ ] NGINX installed and running
+- [ ] Backend 1 running on port 5001
+- [ ] Backend 2 running on port 5002
+- [ ] NGINX configured as a reverse proxy
+- [ ] NGINX listening on port 8080
+- [ ] Direct backend requests tested
+- [ ] Reverse proxy requests tested
+- [ ] Linux IP address identified
+- [ ] Network interface and subnet explained
+- [ ] Virtual networking mode explained
+- [ ] Screenshots or demonstration video prepared
 
 ---
 
-## Conclusion
+## 20. Conclusion
 
-This project demonstrates how NGINX can be configured as a reverse proxy in a Linux environment.
+This project illustrates how NGINX can act as a reverse proxy between a client and multiple backend applications.
 
-Two independent Flask applications run on separate ports, and NGINX routes incoming HTTP requests to the correct backend service based on the requested URL.
+The intended implementation uses two Flask services running on separate ports, with NGINX receiving HTTP requests on port `8080` and routing them based on URL paths.
 
-The implementation also covers Linux IP addressing, private and public networks, DHCP, VMware networking, and the complete HTTP request-response cycle.
+Backend 1 integrates with MySQL, while Backend 2 provides a simple HTTP response.
 
-Successful testing of both backend services through NGINX provides evidence that the reverse proxy is functioning correctly.
+The reverse proxy implementation is verified when both requests return successful responses through NGINX and the active configuration and logs confirm the routing behavior.
+
+The project also provides practical experience with Linux services, virtual networking, private IP addressing, HTTP communication, and backend integration.
+
+---
