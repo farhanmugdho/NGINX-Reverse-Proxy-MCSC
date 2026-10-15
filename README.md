@@ -252,6 +252,13 @@ If NGINX is not running:
 sudo systemctl start nginx
 ```
 
+If NGINX is running
+then
+```bash
+cd ~
+git clone https://github.com/farhanmugdho/NGINX-Reverse-Proxy-MCSC.git
+```
+
 ### Step 5 — Install Flask
 
 From the project directory:
