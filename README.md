@@ -290,6 +290,10 @@ python3 backend1/server.py
 
 If it fails to run then
 ```bash
+sed -i "s/DB_HOST = 'db'/DB_HOST = '127.0.0.1'/" backend1/server.py
+```
+and then:
+```bash
 grep -n DB_HOST backend1/server.py
 ```
 
