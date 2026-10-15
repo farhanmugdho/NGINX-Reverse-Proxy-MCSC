@@ -528,6 +528,7 @@ nginx/reverse-proxy.conf
 ```
 
 ```bash
+
 sudo nano /etc/nginx/sites-available/reverse-proxy
 ```
 
@@ -557,6 +558,16 @@ server {
     }
 }
 ```
+Checking the currently enabled configuration
+```bash
+sudo cat /etc/nginx/sites-available/reverse-proxy
+```
+Look for
+```bash
+listen 8080;
+```
+
+
 
 ### Explanation
 
