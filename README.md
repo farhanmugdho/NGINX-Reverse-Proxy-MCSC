@@ -288,6 +288,11 @@ source .venv/bin/activate
 python3 backend1/server.py
 ```
 
+If it fails to run then
+```bash
+grep -n DB_HOST backend1/server.py
+```
+
 Backend 1 will listen on:
 
 ```text
