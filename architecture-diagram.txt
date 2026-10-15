@@ -1,0 +1,40 @@
+SYSTEM ARCHITECTURE DIAGRAM
+============================
+
+Browser/User
+    |
+    | (HTTP on port 8080)
+    v
++------------------------------------------+
+|            NGINX Container (Frontend)    |
+|  - Listens on port 80                    |
+|  - Proxies /app1 -> backend:5001         |
+|  - Proxies /api  -> backend:5002         |
+|  - Serves HTML frontend                  |
++------------------------------------------+
+        |  Docker Network: app-network (bridge)
+        |
+        v
++------------------------------------------+
+|          Backend Container               |
+|  - Flask app on port 5001 (internal)     |
+|  - Connects to MySQL: db:3306            |
+|  - Not published to host                 |
++------------------------------------------+
+        |  Docker Network: app-network (bridge)
+        |
+        v
++------------------------------------------+
+|          Database Container (MySQL)      |
+|  - Port 3306 (internal only)             |
+|  - Data volume: db_data                  |
+|  - User: user, Password: password        |
++------------------------------------------+
+
+SUMMARY
+-------
+- Published Ports: 8080 (frontend/Nginx only)
+- Private Ports: 5001 (backend), 3306 (database) - host-inaccessible
+- Docker Network: app-network (bridge) isolates backend & db
+- Communication Flow: Browser -> NGINX -> Backend -> Database
+- Database Volume: db_data persists MySQL data

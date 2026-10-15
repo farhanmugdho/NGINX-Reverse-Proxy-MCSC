@@ -1,0 +1,22 @@
+DESIGN EXPLANATION
+==================
+
+This is a multi-container Docker Compose application with three services:
+
+1. **Frontend (NGINX)**: Serves as the entry point, exposed on host port 8080. It routes traffic to the backend service using Docker internal networking. Only the frontend port (8080) is published to the host.
+
+2. **Backend (Flask)**: A Python Flask application that provides API endpoints (/app1, /api). It connects to the MySQL database using the service name "db" within the Docker network. The backend is NOT published to the host - it's only accessible within the app-network.
+
+3. **Database (MySQL)**: MySQL 8.0 container with a named volume (db_data) for persistence. It listens on port 3306 internally but is NOT exposed to the host. The backend connects to it via the service name "db" on the app-network bridge.
+
+**Network Isolation**:
+- All three services share a bridge Docker network called "app-network"
+- The frontend is the only service with published ports (8080:80) accessible from the host
+- Backend (5001) and Database (3306) are internal-only - not listed in ports section, accessible only via Docker service names
+- Communication flow: Browser -> host:8080 -> NGINX -> backend:5001 -> db:3306
+
+**Key Benefits**:
+- Backend and database remain private, inaccessible from host
+- Docker Compose simplifies service orchestration
+- Database volume ensures data persistence across container restarts
+- NGINX reverse proxy handles routing and forwarding
