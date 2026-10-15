@@ -369,7 +369,7 @@ EXIT;
 Backend 1 uses:
 
 ```text
-backend1/server.py
+python3 backend1/server.py
 ```
 
 It is configured to run on port `5001`.
@@ -458,7 +458,7 @@ The visits value depends on the database record.
 Backend 2 uses:
 
 ```text
-backend2/server.py
+python3 backend2/server.py
 ```
 
 The application defines this Flask route:
