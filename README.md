@@ -881,89 +881,15 @@ sudo nginx -t
 sudo systemctl restart nginx
 ```
 
----
 
-## 17. Screenshots and Evidence
 
-Capture screenshots after successfully testing the implementation.
-
-### Screenshot 1 — Linux Environment
-
-```bash
-cat /etc/os-release
-```
-
-### Screenshot 2 — NGINX Status
-
-```bash
-sudo systemctl status nginx
-```
-
-### Screenshot 3 — Backend Services
-
-Show both Flask applications listening on their respective ports.
-
-### Screenshot 4 — NGINX Configuration
-
-```bash
-sudo cat /etc/nginx/sites-available/reverse-proxy
-```
-
-### Screenshot 5 — IP Address
-
-```bash
-ip -4 addr
-ip route
-```
-
-### Screenshot 6 — Direct Backend Testing
-
-```bash
-curl -i http://127.0.0.1:5001/app1
-curl -i http://127.0.0.1:5002/api
-```
-
-### Screenshot 7 — Reverse Proxy Testing
-
-```bash
-curl -i http://127.0.0.1:8080/app1
-curl -i http://127.0.0.1:8080/api
-```
-
-### Screenshot 8 — NGINX Request Logs
-
-```bash
-sudo tail -n 20 /var/log/nginx/access.log
-```
-
-Only include screenshots showing the actual executed setup and observed results.
-
----
-
-## 18. Assignment Requirements Checklist
-
-- [ ] Linux environment confirmed
-- [ ] NGINX installed and running
-- [ ] Backend 1 running on port 5001
-- [ ] Backend 2 running on port 5002
-- [ ] NGINX configured as a reverse proxy
-- [ ] NGINX listening on port 8080
-- [ ] Direct backend requests tested
-- [ ] Reverse proxy requests tested
-- [ ] Linux IP address identified
-- [ ] Network interface and subnet explained
-- [ ] Virtual networking mode explained
-- [ ] Screenshots or demonstration video prepared
-
----
-
-## 19. Conclusion
+## 17. Conclusion
 
 This project illustrates how NGINX can act as a reverse proxy between a client and multiple backend applications.
 
 The intended implementation uses two Flask services running on separate ports, with NGINX receiving HTTP requests on port `8080` and routing them based on URL paths.
 
-Backend 1 integrates with MySQL
+Backend1 integrates with MySQL
 
 The reverse proxy implementation is verified when both requests return successful responses through NGINX and the active configuration and logs confirm the routing behavior.
 
